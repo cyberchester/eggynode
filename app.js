@@ -181,11 +181,9 @@ app.post("/get_series", (req, res)=>{
 })
 
 //Search Series
-//Search Series
 app.post("/search_series", (req, res)=>{
-
     const search = req.body.search
-
+    
     series.find({title: {'$regex': ".*" + search + ".*", '$options': 'i'}}).toArray((err, items)=>{
         if(err){
             console.error(err)
