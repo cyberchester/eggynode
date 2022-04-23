@@ -186,7 +186,7 @@ app.post("/search_series", (req, res)=>{
     const search = req.body.search
 
 
-    series.find({"title": /search/}).toArray((err, items)=>{
+    series.find({title: /search/}).toArray((err, items)=>{
         if(err){
             console.error(err)
             res.status(500).json({err: err})
