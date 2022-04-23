@@ -2,7 +2,7 @@ const express = require("express")
 const basicAuth = require("express-basic-auth")
 const { ObjectId } = require("mongodb")
 const mongo = require("mongodb").MongoClient
-const url = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@cluster0.awkk3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+const url = "mongodb+srv://cyberchester:ayenandar@cluster0.awkk3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 
 
 //initialize variable
@@ -21,7 +21,8 @@ mongo.connect(
     url, 
     {
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        serverApi: ServerApiVersion.v1
     }, (err, client) => {
         if(err){
             console.error(err)
