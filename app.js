@@ -2,7 +2,7 @@ const express = require("express")
 const basicAuth = require("express-basic-auth")
 const { ObjectId } = require("mongodb")
 const mongo = require("mongodb").MongoClient
-const url = process.env.MONGODB_URI || "mongodb://localhost:27017"
+const url = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@cluster0.awkk3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
 
 
 //initialize variable
