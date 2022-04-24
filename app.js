@@ -91,7 +91,7 @@ app.post("/addepisode", basicAuth({
     const series_server_id = req.body.series_server_id
     const episode_num = req.body.episode_num
     const thumbnail = req.body.thumbnail
-
+    const premium = req.body.premium
     const stream_urls = req.body.stream_urls
     const download_urls = req.body.download_urls
 
@@ -100,6 +100,7 @@ app.post("/addepisode", basicAuth({
         series_server_id: series_server_id,
         episode_num: episode_num,
         thumbnail: thumbnail,
+        premium: premium,
         stream_urls: stream_urls,
         download_urls: download_urls
   
@@ -300,22 +301,22 @@ app.listen(process.env.PORT || 4000, () => console.log("server ready"))
 
 
 // {
-//     "series_server_id":"62619cdababd5e3ebf89a13c",
+//     "series_server_id":"626427afafe706f2fde303cd",
 //     "episode_num": 1,
 //     "thumbnail": "https://i.mydramalist.com/Zx8kW_3f.jpg",
 //     "premium" : false,
 //     "stream_urls" : [
 //         {
 //             "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-//             "desc":"a"
+//             "desc":"S1 720p - 500MB"
 //         },
 //         {
 //             "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-//             "desc":"b"
+//             "desc":"S1 1080p - 1GB"
 //         },
 //         {
 //             "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-//             "desc":"c"
+//             "desc":"s1 480p - 250MB"
 //         }
         
        
@@ -323,10 +324,10 @@ app.listen(process.env.PORT || 4000, () => console.log("server ready"))
 //     "download_urls" :[
 //         {
 //             "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-//             "desc":"a"
+//             "desc":"TG 720p 500MB"
 //         },{
 //             "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-//             "desc":"b"
+//             "desc":"MEGA 720p 500MB"
 //         }
 //     ]
     
