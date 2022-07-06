@@ -469,7 +469,7 @@ app.post('/get_episode', (req, res)=>{
 
 
 //app.listen(process.env.PORT || 4000, () => console.log("server ready"))
-app.listen(4000, "192.168.99.32", () => console.log("server ready"))
+app.listen(4000, "192.81.216.81", () => console.log("server ready"))
 
 
 
