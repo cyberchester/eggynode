@@ -77,17 +77,20 @@ app.post("/addseries", basicAuth({
             res.status(500).json({err: err})
             return
         }
-        console.log(result)
-        res.status(200).json({ok : true})
+        res.status(200).json({ok : true, id : result.insertedId})
     })
     
 });
+
+
 
 //Add Episode Route
 app.post("/addepisode", basicAuth({
 	users : {'test' : 'pass'},
 	unauthorizedResponse : 'not authorized'
 }), (req, res) => {
+
+
     const series_server_id = req.body.series_server_id
     const episode_num = req.body.episode_num
     const thumbnail = req.body.thumbnail
@@ -95,24 +98,117 @@ app.post("/addepisode", basicAuth({
     const stream_urls = req.body.stream_urls
     const download_urls = req.body.download_urls
 
+  	episodes.findOne({
+  		series_server_id: series_server_id, 
+  		episode_num: episode_num
+  	}, (err, result)=>{
 
-    episodes.insertOne({
-        series_server_id: series_server_id,
-        episode_num: episode_num,
-        thumbnail: thumbnail,
-        premium: premium,
-        stream_urls: stream_urls,
-        download_urls: download_urls
-  
-    }, (err, result)=>{
-        if(err){
+  		if(!err){
+
+  			if(result != null){
+  				episodes.updateOne(
+	  			{ "_id": result._id},
+	  			{$set: {
+	  				series_server_id: series_server_id,
+			        episode_num: episode_num,
+			        thumbnail: thumbnail,
+			        premium: premium,
+			        stream_urls: stream_urls,
+			        download_urls: download_urls
+	  			}}, (err, doc)=>{
+	  				if(err){
+			            console.error(err)
+			            res.status(500).json({err: err})
+			            return
+			        }
+
+			        res.status(200).json({ok : true, status : "updated"})
+	  			})
+  			} else {
+  				episodes.insertOne({
+		        series_server_id: series_server_id,
+		        episode_num: episode_num,
+		        thumbnail: thumbnail,
+		        premium: premium,
+		        stream_urls: stream_urls,
+		        download_urls: download_urls
+		  
+		    }, (err, result)=>{
+		        if(err){
+		            console.error(err)
+		            res.status(500).json({err: err})
+		            return
+		        }
+		       
+		        res.status(200).json({ok : true, id : result.insertedId, status: "added"})
+		    })
+  			}
+  			 
+  		} else {
+
+  			
+  		}
+
+  		
+  	})
+
+
+
+
+
+
+})
+
+
+//Delete Series Route
+app.post("/deleteseries", basicAuth({
+	users : {'test' : 'pass'},
+	unauthorizedResponse : 'not authorized'
+}), (req, res) => {
+	const series_server_id = req.body.series_server_id;
+
+
+	series.deleteOne({ _id: new ObjectId(series_server_id) 
+	}, (err, result)=> {
+ 		if(err){
             console.error(err)
             res.status(500).json({err: err})
             return
         }
-        console.log(result)
-        res.status(200).json({ok : true})
-    })
+
+
+        // episodes.deleteOne({ _id: new ObjectId(series_server_id)}, (err, result)=> {
+        // 	if(err){
+	            //console.error(err)
+	            //res.status(500).json({err: err})
+	            //return
+	       //  }
+        // })
+ 		
+
+        res.status(200).json({ok : true, status : "deleted"})
+	})
+})
+
+
+//Delete Episode Route
+app.post("deleteepisodes", basicAuth({
+	users : {'test' : 'pass'},
+	unauthorizedResponse : 'not authorized'
+}), (req, res) => {
+
+	const episode_server_id = req.body.episode_server_id;
+
+	episodes.deleteOne({ _id: new ObjectId(episode_server_id)}, (err, result)=> {
+		if(err){
+            console.error(err)
+            res.status(500).json({err: err})
+            return
+        }
+
+        res.status(200).json({ok : true, status : `Episode id  [${episode_server_id}] has been deleted`})
+	})
+
 })
 
 //Get Trending Series Limit 10
@@ -156,7 +252,7 @@ app.get("/get_complete_series", (req, res)=> {
 })
 
 
-//Get All Series
+//Get Specific Type of Series
 app.post("/get_series", (req, res)=>{
 
     const arg = req.body.arg
@@ -165,21 +261,31 @@ app.post("/get_series", (req, res)=>{
     const order = req.body.order || -1
 
 
-    console.log(req.body)
-
-
     series.find({post_status: arg}).sort({updated_at: order}).skip(offset).limit(20).toArray((err, items)=>{
         if(err){
 			console.error(err)
 			res.status(500).json({err: err})
 			return
 		}
-
-
-
         res.status(200).json(items)
     })
 })
+
+
+//Get All Series
+app.get("/get_all_series", (req, res)=>{
+	series.find({}).sort({updated_at: -1}).toArray((err, items)=>{
+		if(err){
+			console.error(err)
+			res.status(500).json({err: err})
+			return
+		}
+        res.status(200).json(items)
+	})
+})
+
+
+
 
 //Search Series
 app.post("/search_series", (req, res)=>{
@@ -233,6 +339,40 @@ app.post("/update_like", (req, res)=> {
 	})
 })
 
+//update Post Status
+app.post("/update_status", (req, res)=>{
+	const series_id = req.body.series_server_id
+	const status = req.body.post_status
+
+	txtStatus = "";
+
+	if(status == "true"){
+		txtStatus = "complete";
+	} else {
+		txtStatus = "ongoing";
+	}
+
+
+	series.find({ _id: ObjectId(series_id)}).toArray((err, items) =>{
+		if(err){
+			console.error(err)
+			res.status(500).json({err: err})
+			return
+		}
+
+		series.updateOne({_id: ObjectId(series_id)}, {$set: {"post_status": txtStatus }}, function(err, res){
+        	if(err){
+	            console.error(err)
+				res.status(500).json({err: err})
+				return
+	        }
+        })
+
+		res.status(200).json(items)
+
+	})
+})
+
 //Get Single Series
 app.post("/get_single_series", (req, res)=> {
     const series_id = req.body.series_server_id
@@ -261,6 +401,34 @@ app.post("/get_single_series", (req, res)=> {
 })
 
 
+
+//Update Latest Episode Number
+app.post("/update_latest_episode_num", (req, res)=>{
+	const series_server_id = req.body.series_server_id
+	const episode_latest_num = req.body.episode_latest_num
+
+
+	series.findOne({_id: ObjectId(series_server_id)}, (err, result)=>{
+		if(result == null){
+			res.status(200).json({ok: false, status: "not found"});
+		} else {
+			//Found
+
+			series.updateOne({_id: ObjectId(series_server_id)}, {$set: {"latest_episode": episode_latest_num}} , function(err, res){
+				if(err){
+		            console.error(err)
+					res.status(500).json({err: err})
+					return
+		        }
+			})
+			res.status(200).json({ok: true, status: "found and updated"});
+
+		}
+	})
+})
+
+
+
 //Get Episodes of Series
 app.post("/get_episodes", (req, res)=>{
     const series_id = req.body.series_server_id
@@ -276,10 +444,32 @@ app.post("/get_episodes", (req, res)=>{
 })
 
 
+//Get Single Episode
+app.post('/get_episode', (req, res)=>{
+	const series_id = req.body.series_server_id;
+	const episode_num = req.body.episode_num;
+
+	episodes.findOne({
+		series_server_id: series_id,
+		episode_num: episode_num
+
+	}, (err, result)=>{
+		if(result == null){
+			res.status(200).json({ok: false, status: "not found"});
+		} else {
+			res.status(200).json({ok: true, status: "found", data: result});
+		}
+	})
+})
 
 
 
-app.listen(process.env.PORT || 4000, () => console.log("server ready"))
+
+
+
+
+//app.listen(process.env.PORT || 4000, () => console.log("server ready"))
+app.listen(4000, "192.168.99.32", () => console.log("server ready"))
 
 
 
