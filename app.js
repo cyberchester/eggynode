@@ -35,6 +35,8 @@ mongo.connect(
 
 
 
+
+
 //Add Series Route
 app.post("/addseries", basicAuth({
 	users : {'test' : 'pass'},
@@ -211,6 +213,22 @@ app.post("deleteepisodes", basicAuth({
 
 })
 
+
+//Get Init Data
+app.get("/init", (req, res)=>{
+	res.status(200).json({
+		"is_admob_active":true,
+		"admob_banner": "",
+		"admob_interstitial": "",
+		"latest_version": 1,
+		"update_url": "https://www.google.com"
+	})
+})
+
+
+
+
+
 //Get Trending Series Limit 10
 app.get("/get_trending_series", (req, res)=> {
     series.find({created_at : {$gte: new Date((new Date() - 30 * 24 * 60 * 60 * 1000))}}).sort({views: -1}).limit(10).toArray((err, items)=>{
@@ -274,7 +292,8 @@ app.post("/get_series", (req, res)=>{
 
 //Get All Series
 app.get("/get_all_series", (req, res)=>{
-	series.find({}).sort({updated_at: -1}).toArray((err, items)=>{
+
+	series.find().toArray((err, items)=>{
 		if(err){
 			console.error(err)
 			res.status(500).json({err: err})
@@ -469,7 +488,7 @@ app.post('/get_episode', (req, res)=>{
 
 
 //app.listen(process.env.PORT || 4000, () => console.log("server ready"))
-app.listen(4000, "192.81.216.81", () => console.log("server ready"))
+app.listen(4000, "192.168.99.32", () => console.log("server ready"))
 
 
 
